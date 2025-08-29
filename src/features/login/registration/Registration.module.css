@@ -1,0 +1,33 @@
+/* Registration.module.css */
+.greenPhoneInput .form-control:focus,
+.greenPhoneInput .flag-dropdown:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 2px green !important;
+  border-color: green !important;
+}
+
+.greenPhoneInput .form-control {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  height: 56px;
+  font-size: 16px;
+  padding-left: 48px;
+}
+
+.greenPhoneInput .form-control:focus {
+  border-color: green;
+  box-shadow: 0 0 0 2px green;
+}
+
+.greenPhoneInput .flag-dropdown {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.greenPhoneInput .flag-dropdown:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px green;
+  border-radius: 4px;
+}
+    
