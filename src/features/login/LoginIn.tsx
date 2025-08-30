@@ -1,20 +1,26 @@
-import { Box, Button, TextField, Typography, Modal } from "@mui/material";
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  Modal,
+  Divider,
+} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "../../common/hooks/useAppDispatch";
-import { closeR } from "./slice-loginModal";
+import { closeOther } from "./slice-loginModal";
 import { setUser, registrSelector } from "./slice-login"; // исправь путь при необходимости
 import style from "./login.module.css";
 
 import type { RootState } from "../../app/store";
 import type { ChangeEvent, FormEvent } from "react";
 
-export const Login = () => {
+export const LoginIn = () => {
   const dispatch = useAppDispatch();
 
-  const openR = useSelector(
-    (state: RootState) =>
-      state.modalsForRegistr?.buttonSwitchForRegistr ?? false
+  const open = useSelector(
+    (state: RootState) => state.modalsForRegistr?.otherAuthOpen ?? false
   );
 
   const { name, email, password } = useSelector(registrSelector);
@@ -51,8 +57,8 @@ export const Login = () => {
 
   return (
     <Modal
-      open={openR}
-      onClose={() => dispatch(closeR())}
+      open={open}
+      onClose={() => dispatch(closeOther())}
       aria-labelledby="modal-modal-title"
       aria-describedby="modal-modal-description"
     >
@@ -67,20 +73,27 @@ export const Login = () => {
           bgcolor: "background.paper",
           boxShadow: 24,
           borderRadius: "10px",
-          p: 2,
         }}
       >
-        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", p: 2 }}>
           <Typography className={style.boxExit}>Exit</Typography>
-          <div onClick={() => dispatch(closeR())} style={{ cursor: "pointer" }}>
+          <div
+            onClick={() => dispatch(closeOther())}
+            style={{ cursor: "pointer" }}
+          >
             <CloseIcon />
           </div>
         </Box>
-        <hr />
+        <Divider sx={{ borderColor: "#ccc !impotent" }} />
         <Box
           component="form"
           onSubmit={handleSubmit}
-          sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+            m: "28px 16px 16px 16px",
+          }}
         >
           <TextField
             sx={GreenTextField}
@@ -114,6 +127,22 @@ export const Login = () => {
           <Button type="submit" variant="contained" color="success">
             Send
           </Button>
+          <Typography
+            sx={{
+              display: "inline",
+              fontWeight: "400",
+              letterSpacing: "1px",
+              textAlign: "center",
+              color: "#246dacff",
+              cursor: "pointer",
+              fontSize: "15px",
+              "&:hover": {
+                color: "red",
+              },
+            }}
+          >
+            forgot password
+          </Typography>
         </Box>
       </Box>
     </Modal>

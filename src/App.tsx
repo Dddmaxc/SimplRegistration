@@ -6,13 +6,19 @@ import { CartWatcher } from "./features/cartWatcher/CartWatcher";
 import { Main } from "./common/components/main/Main";
 import { Shop } from "./common/components/main/Shop/Shop";
 import { useAppSelector } from "./common/hooks/selector";
-import { sModalsForRegistr } from "./features/login/slice-loginModal";
+import {
+  otherAuthOpen,
+  sModalsForRegistr,
+} from "./features/login/slice-loginModal";
 import { RegistrationWatcher } from "./features/registrationWatcher/registrationWatcher";
 import { Registration } from "./features/login/registration/Registration";
+import { LoginWatcher } from "./features/login/loginWatcher";
+import { LoginIn } from "./features/login/LoginIn";
 
 export const App = () => {
   const isOpen = useAppSelector(selectorCartWatcher);
   const isOpenR = useAppSelector(sModalsForRegistr);
+  const openOther = useAppSelector(otherAuthOpen);
 
   return (
     <div className="App">
@@ -22,6 +28,8 @@ export const App = () => {
       {isOpenR && <Registration />}
       <CartWatcher />
       {isOpen && <Cart />}
+      <LoginWatcher />
+      {openOther && <LoginIn />}
 
       <Routes>
         <Route path="/" element={<Main />} />

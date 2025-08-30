@@ -3,10 +3,12 @@ import type { RootState } from "../../app/store";
 
 export type ModalSwitchState = {
   buttonSwitchForRegistr: boolean;
+  otherAuthOpen: boolean;
 };
 
 const initialState: ModalSwitchState = {
   buttonSwitchForRegistr: false,
+  otherAuthOpen: false,
 };
 
 const modalsForRegistr = createSlice({
@@ -19,10 +21,20 @@ const modalsForRegistr = createSlice({
     closeR(state) {
       state.buttonSwitchForRegistr = false;
     },
+    openOther: (state) => {
+      state.otherAuthOpen = true;
+    },
+    closeOther: (state) => {
+      state.otherAuthOpen = false;
+    },
   },
 });
 export const sModalsForRegistr = (state: RootState) =>
   state.modalsForRegistr.buttonSwitchForRegistr;
+export const otherAuthOpen = (state: RootState) =>
+  state.modalsForRegistr.otherAuthOpen;
 
-export const { openR, closeR } = modalsForRegistr.actions;
+
+export const { openR, closeR, openOther, closeOther } =
+  modalsForRegistr.actions;
 export default modalsForRegistr.reducer;

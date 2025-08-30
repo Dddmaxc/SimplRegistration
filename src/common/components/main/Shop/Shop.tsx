@@ -24,7 +24,7 @@ export const Shop = () => {
   };
 
   return (
-    <Container maxWidth={false} sx={{ mt: 15, maxWidth: "1800px", mx: "auto" }}>
+    <Container maxWidth={false} sx={{ mt: 8, maxWidth: "1800px", mx: "auto" }}>
       <Box
         sx={{
           display: "grid",
