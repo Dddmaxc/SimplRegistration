@@ -1,39 +1,68 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { RootState } from "../../app/store";
 
-type Fields = "name" | "email" | "password" | "token" | "id";
+export type UserFields =
+  | "name"
+  | "email"
+  | "password"
+  | "token"
+  | "id"
+  | "firstName"
+  | "lastName"
+  | "phoneNumber";
 
-export type RegistrType = Record<Fields, string | null>;
+export type RegistrType = Record<UserFields, string | null>;
 
-const initialState: RegistrType = {
-  name: null,
-  email: null,
-  password: null,
-  token: null,
-  id: null,
+export type LoginModalState = {
+  user: RegistrType;
+  buttonSwitchForRegistr: boolean;
+  buttonSwitchForOther: boolean;
+}
+
+const initialState: LoginModalState = {
+  user: {
+    name: null,
+    email: null,
+    password: null,
+    token: null,
+    id: null,
+    firstName: null,
+    lastName: null,
+    phoneNumber: null,
+  },
+  buttonSwitchForRegistr: false,
+  buttonSwitchForOther: false,
 };
 
-const login = createSlice({
-  name: "login",
+const loginModalSlice = createSlice({
+  name: "modalsForRegistr",
   initialState,
   reducers: {
-    setUser(state, action: { payload: RegistrType }) {
-      state.name = action.payload.name;
-      state.email = action.payload.email;
-      state.password = action.payload.password;
-      state.token = action.payload.token;
-      state.id = action.payload.id;
+    setUser(state, action: { payload: Partial<RegistrType> }) {
+      state.user = { ...state.user, ...action.payload };
     },
-    removeUser(state, _action) {
-      state.name = null;
-      state.email = null;
-      state.password = null;
-      state.token = null;
-      state.id = null;
+    updateUserField(
+      state,
+      action: { payload: { field: keyof RegistrType; value: string | null } }
+    ) {
+      const { field, value } = action.payload;
+      state.user[field] = value;
+    },
+    removeUser(state) {
+      state.user = { ...initialState.user }; // безопаснее, чем ссылка
     },
   },
 });
-export const registrSelector = (state: RootState) => state.login;
 
-export const { setUser, removeUser } = login.actions;
-export default login.reducer;
+export const {
+  setUser,
+  updateUserField,
+  removeUser,
+} = loginModalSlice.actions;
+
+// ✅ Эти селекторы теперь возвращают разные части состояния:
+export const registrSelector = (state: RootState) => state.modalsForRegistr;
+// export const userSelector = (state: RootState) => state;
+export const modalStateSelector = (state: RootState) => state.modalsForRegistr;
+
+export default loginModalSlice.reducer;

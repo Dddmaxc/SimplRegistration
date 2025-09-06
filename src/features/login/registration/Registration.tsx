@@ -1,5 +1,10 @@
 import { useState, useEffect } from "react";
 import { doc, setDoc } from "firebase/firestore";
+import {
+  RecaptchaVerifier,
+  signInWithPhoneNumber,
+  type ConfirmationResult,
+} from "firebase/auth";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/material.css";
 import {
@@ -10,18 +15,15 @@ import {
   Modal,
   Divider,
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import { useAppDispatch } from "../../../common/hooks/useAppDispatch";
 import { useSelector } from "react-redux";
-import type { RootState } from "../../../app/store";
-import { closeR, openOther } from "../slice-loginModal";
-import CloseIcon from "@mui/icons-material/Close";
-import "../../../App.css";
+import { auth, db } from "../../../firebase";
 import google from "../../../assets/images/google.png";
 import apple from "../../../assets/images/apple.png";
-
-import { auth, db } from "../../../firebase";
-import { RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult, } from "firebase/auth";
-
+import "../../../App.css";
+import { registrSelector, setUser, updateUserField } from "../slice-login";
+import { closeR, openOther } from "../slice-loginModal";
 declare global {
   interface Window {
     recaptchaVerifier?: RecaptchaVerifier;
@@ -31,116 +33,130 @@ declare global {
 export const Registration = () => {
   const [phone, setPhone] = useState("");
   const [code, setCode] = useState("");
-  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
+  const [confirmationResult, setConfirmationResult] =
+    useState<ConfirmationResult | null>(null);
   const [step, setStep] = useState<"phone" | "code">("phone");
   const [loading, setLoading] = useState(false);
 
   const dispatch = useAppDispatch();
-  const openR = useSelector(
-    (state: RootState) =>
-      state.modalsForRegistr?.buttonSwitchForRegistr ?? false
-  );
+  const { buttonSwitchForRegistr } = useSelector(registrSelector);
 
   useEffect(() => {
     return () => {
       if (window.recaptchaVerifier) {
-        window.recaptchaVerifier.clear();
-        window.recaptchaVerifier = undefined;
+        // Если reCAPTCHA инициализирован
+        window.recaptchaVerifier.clear(); // Очищает reCAPTCHA из DOM
+        window.recaptchaVerifier = undefined; // Удаляет ссылку
       }
     };
   }, []);
-
+  // Функция для настройки reCAPTCHA
   const setupRecaptcha = () => {
-    try {
-      if (!window.recaptchaVerifier) {
-        window.recaptchaVerifier = new RecaptchaVerifier(
-          auth,
-          "recaptcha",
-          {
-            size: "invisible",
-            callback: () => {
-              // reCAPTCHA успешно пройден
-            },
-            "expired-callback": () => {
-              alert("Пожалуйста, подтвердите reCAPTCHA заново.");
-            },
-          }
-        );
-        
-        window.recaptchaVerifier.render().catch((error) => {
-          console.error("reCAPTCHA render error:", error);
-        });
-      }
-      return window.recaptchaVerifier;
-    } catch (error) {
-      console.error("reCAPTCHA setup error:", error);
-      throw error;
-    }
-  };
+    // Инициализация reCAPTCHA
+    if (!window.recaptchaVerifier) {
+      // Если еще не инициализирован
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha", {
+        size: "invisible",
+        callback: () => {},
+        "expired-callback": () => {
+          alert("Please confirm reCAPTCHA again.");
+        }, // Обработчик истечения срока действия reCAPTCHA
+      });
 
+      window.recaptchaVerifier.render().catch((error) => {
+        console.error("reCAPTCHA rendering error:", error);
+      }); // Рендеринг reCAPTCHA
+    }
+    return window.recaptchaVerifier; // Возвращаем экземпляр reCAPTCHA
+  };
+  // Отправка кода на указанный номер телефона
   const handleSendCode = async () => {
     if (!phone || phone.length < 8) {
-      alert("Введите корректный номер телефона");
-      return;
+      alert("Please enter a valid phone number");
+      return; // Простая проверка на минимальную длину
     }
-    setLoading(true);
+
+    setLoading(true); // Установка состояния загрузки
+    // Инициализация reCAPTCHA и отправка кода
     try {
-      const appVerifier = setupRecaptcha();
+      const appVerifier = setupRecaptcha(); // Настройка reCAPTCHA
+    console.log("Formatted phone:", `+${phone}`);
       const confirmation = await signInWithPhoneNumber(
+        // Отправка кода
         auth,
         `+${phone}`,
         appVerifier
       );
-      setConfirmationResult(confirmation);
-      setStep("code");
+      setConfirmationResult(confirmation); // Сохранение результата для последующего подтверждения
+      setStep("code"); // Переход к следующему шагу (ввод кода)
+      // alert("Code sent! Please check your SMS.");
+      // Сохранение номера телефона в Redux
+      dispatch(updateUserField({ field: "phoneNumber", value: phone }));
     } catch (error: any) {
-      console.error("Ошибка отправки кода:", error);
-      alert("Ошибка при отправке SMS. Попробуйте позже.");
+      console.error("Error sending code:", error);
+      alert("Error sending SMS. Try again later.");
       if (window.recaptchaVerifier) {
         window.recaptchaVerifier.clear();
         window.recaptchaVerifier = undefined;
       }
+    } finally {
+      // Сброс состояния загрузки
+      setLoading(false);
     }
-    setLoading(false);
   };
-
+  // Подтверждение кода, введенного пользователем
   const handleVerifyCode = async () => {
     if (!code || code.length < 6) {
-      alert("Введите корректный код из 6 цифр");
+      alert("Please enter the correct code");
       return;
     }
     if (!confirmationResult) {
-      alert("Сессия подтверждения не найдена. Попробуйте отправить код снова.");
+      // Проверка наличия confirmationResult
+      alert("Confirmation session not found. Please try again.");
       return;
     }
-    setLoading(true);
+  
+    setLoading(true); // Установка состояния загрузки
+    // Подтверждение кода
     try {
-      const userCredential = await confirmationResult.confirm(code);
-      alert("✅ Успешная авторизация!");
+      const userCredential = await confirmationResult.confirm(code); 
+      const userFromFirebase = userCredential.user; //Получение пользователя из результата
 
-      const user = userCredential.user;
-
-      // Сохраняем профиль пользователя в Firestore
-      await setDoc(doc(db, "users", user.uid), {
-        phoneNumber: user.phoneNumber,
+      // Сохраняем пользователя в Firestore
+      await setDoc(doc(db, "users", userFromFirebase.uid), {
+        uid: userFromFirebase.uid,
+        phoneNumber: userFromFirebase.phoneNumber,
         createdAt: new Date(),
       });
+      // Сохранение данных пользователя в Redux
+      dispatch(
+        setUser({
+          id: userFromFirebase.uid,
+          phoneNumber: userFromFirebase.phoneNumber,
+          token: userFromFirebase.refreshToken,
+        })
+      );
 
-      dispatch(closeR());
-      
-      // Очищаем reCAPTCHA после успешной авторизации
+      alert("✅ Successful authorization!");
+
+      dispatch(closeR()); 
+      setStep("phone");
+      setCode("");
+      setPhone("");
+      // Очистка reCAPTCHA после успешной авторизации
       if (window.recaptchaVerifier) {
         window.recaptchaVerifier.clear();
         window.recaptchaVerifier = undefined;
       }
-    } catch (error: any) {
-      alert("❌ Неверный код или срок действия кода истек");
-      console.error("Ошибка подтверждения кода:", error);
+    } catch (error: any) { // Обработка ошибок подтверждения
+      console.error("Code verification error:", error);
+      alert("❌ Invalid code or expired session. Please try again.");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
-
-  const handleResendCode = async () => {
+  // Повторная отправка кода
+  const handleResendCode = () => {
     setStep("phone");
     setCode("");
     if (window.recaptchaVerifier) {
@@ -151,7 +167,7 @@ export const Registration = () => {
 
   return (
     <Modal
-      open={openR}
+      open={buttonSwitchForRegistr}
       onClose={() => dispatch(closeR())}
       aria-labelledby="modal-modal-title"
       aria-describedby="modal-modal-description"
@@ -168,11 +184,17 @@ export const Registration = () => {
           bgcolor: "#fff",
           borderRadius: "10px",
           border: "none",
-          p: 2,
           position: "relative",
         }}
       >
-        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            mb: 1,
+            p: "16px 16px 0 16px",
+          }}
+        >
           <Typography
             className="boxExit"
             sx={{ cursor: "pointer" }}
@@ -187,76 +209,64 @@ export const Registration = () => {
 
         <Divider sx={{ borderColor: "#ccc", mb: 2 }} />
 
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 2,
-            px: 1,
-          }}
-        >
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2, px: 2 }}>
           {step === "phone" && (
             <>
-              <Typography variant="h6" sx={{ textAlign: "center", mb: 1 }}>
-                Введите номер телефона
-              </Typography>
               <PhoneInput
                 country={"ua"}
                 value={phone}
                 onChange={(value) => setPhone(value)}
-                inputStyle={{ 
+                inputStyle={{
                   width: "100%",
                   height: "56px",
-                  fontSize: "16px"
+                  fontSize: "16px",
                 }}
                 containerClass="greenPhoneInput"
-                placeholder="Введите номер телефона"
+                placeholder="Enter your phone number"
               />
               <div id="recaptcha"></div>
               <Button
-                color="success"
                 variant="contained"
-                onClick={handleSendCode}
-                disabled={loading || !phone}
+                color="success"
                 fullWidth
+                disabled={loading || phone.length < 8}
+                onClick={handleSendCode}
                 sx={{ height: "48px", fontSize: "16px" }}
               >
-                {loading ? "Отправка..." : "Продолжить"}
+                {loading ? "Sending..." : "Continue"}
               </Button>
             </>
           )}
 
           {step === "code" && (
             <>
-              <Typography variant="h6" sx={{ textAlign: "center", mb: 1 }}>
-                Введите код из SMS
+              <Typography variant="h6" sx={{ textAlign: "center" }}>
+                Enter the code from the SMS
               </Typography>
               <TextField
-                label="Код из SMS"
+                label="Cod from sms"
                 value={code}
-                onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-                fullWidth
-                type="tel"
+                onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
                 inputProps={{ maxLength: 6 }}
-                placeholder="000000"
+                type="tel"
+                fullWidth
               />
               <Button
                 variant="contained"
                 onClick={handleVerifyCode}
                 disabled={loading || code.length < 6}
                 fullWidth
-                sx={{ height: "48px", fontSize: "16px", mb: 1 }}
+                sx={{ height: "48px", fontSize: "16px" }}
               >
-                {loading ? "Проверка..." : "Подтвердить"}
+                {loading ? "Sending..." : "Continue"}
               </Button>
               <Button
                 variant="outlined"
                 onClick={handleResendCode}
                 disabled={loading}
                 fullWidth
-                sx={{ height: "48px", fontSize: "14px" }}
               >
-                Отправить код повторно
+                Resend code
               </Button>
             </>
           )}
@@ -273,11 +283,9 @@ export const Registration = () => {
           }}
         >
           By continuing, you confirm that you agree to log in to your{" "}
-          <span style={{ textDecoration: "underline", margin: 0 }}>
-            BarcaCCG account
-          </span>{" "}
+          <span style={{ textDecoration: "underline" }}>BarcaCCG account</span>{" "}
           and consent to{" "}
-          <span style={{ textDecoration: "underline", margin: 0 }}>
+          <span style={{ textDecoration: "underline" }}>
             the processing of personal data
           </span>
         </Typography>
@@ -290,29 +298,18 @@ export const Registration = () => {
             height: "46px",
             borderRadius: "10px",
             border: "1px solid #ccc",
-            m: "0 16px",
+            mx: "auto",
             display: "flex",
             alignItems: "center",
             gap: 1,
             justifyContent: "center",
             cursor: "pointer",
             mb: 1,
-            '&:hover': {
-              backgroundColor: '#f5f5f5'
-            }
+            "&:hover": { backgroundColor: "#f5f5f5" },
           }}
         >
-          <img
-            style={{ width: "24px", height: "24px" }}
-            src={google}
-            alt="google-Img"
-          />
-          <Typography
-            component="p"
-            sx={{ fontWeight: "700", letterSpacing: "1px" }}
-          >
-            Login in to Google
-          </Typography>
+          <img src={google} alt="google-Img" width={24} height={24} />
+          <Typography sx={{ fontWeight: 700 }}>Login in to Google</Typography>
         </Box>
 
         <Box
@@ -321,28 +318,17 @@ export const Registration = () => {
             height: "46px",
             borderRadius: "10px",
             border: "1px solid #ccc",
-            m: "0 16px",
+            mx: "auto",
             display: "flex",
             alignItems: "center",
             gap: 1,
             justifyContent: "center",
             cursor: "pointer",
-            '&:hover': {
-              backgroundColor: '#f5f5f5'
-            }
+            "&:hover": { backgroundColor: "#f5f5f5" },
           }}
         >
-          <img
-            style={{ width: "24px", height: "24px" }}
-            src={apple}
-            alt="apple-Img"
-          />
-          <Typography
-            component="p"
-            sx={{ fontWeight: "700", letterSpacing: "1px" }}
-          >
-            Login in to Apple
-          </Typography>
+          <img src={apple} alt="apple-Img" width={24} height={24} />
+          <Typography sx={{ fontWeight: 700 }}>Login in to Apple</Typography>
         </Box>
 
         <Typography
@@ -351,19 +337,18 @@ export const Registration = () => {
             dispatch(openOther());
           }}
           sx={{
-            fontWeight: "400",
-            letterSpacing: "1px",
-            textAlign: "center",
-            color: "#246dacff",
-            cursor: "pointer",
             fontSize: "15px",
+            textAlign: "center",
+            color: "#246dac",
+            cursor: "pointer",
             mt: 2,
-            '&:hover': {
-              textDecoration: 'underline'
-            }
+            pb: 2,
+            "&:hover": {
+              textDecoration: "underline",
+            },
           }}
         >
-          Other authorization methods
+          Other login options
         </Typography>
       </Box>
     </Modal>
