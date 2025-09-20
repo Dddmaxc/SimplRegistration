@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import type { RootState } from "../../app/store";
+import type { RootState } from "../../../../app/store";
 
 export type UserFields =
   | "name"
@@ -17,7 +17,7 @@ export type LoginModalState = {
   user: RegistrType;
   buttonSwitchForRegistr: boolean;
   buttonSwitchForOther: boolean;
-}
+};
 
 const initialState: LoginModalState = {
   user: {
@@ -49,20 +49,12 @@ const loginModalSlice = createSlice({
       state.user[field] = value;
     },
     removeUser(state) {
-      state.user = { ...initialState.user }; // безопаснее, чем ссылка
+      state.user = { ...initialState.user };
     },
   },
 });
 
-export const {
-  setUser,
-  updateUserField,
-  removeUser,
-} = loginModalSlice.actions;
-
-// ✅ Эти селекторы теперь возвращают разные части состояния:
-export const registrSelector = (state: RootState) => state.modalsForRegistr;
-// export const userSelector = (state: RootState) => state;
-export const modalStateSelector = (state: RootState) => state.modalsForRegistr;
+export const { setUser, updateUserField, removeUser } = loginModalSlice.actions;
+export const registrSelector = (state: RootState) => state.login.user;
 
 export default loginModalSlice.reducer;

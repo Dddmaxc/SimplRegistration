@@ -1,9 +1,9 @@
 import React, { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { useAppDispatch } from "../../common/hooks/useAppDispatch";
 import { closeOther, otherAuthOpen } from "./slice-loginModal";
 import { LoginIn } from "./LoginIn";
+import { useAppDispatch } from "../../../hooks/useAppDispatch";
 
 export const LoginWatcher = () => {
   const location = useLocation();
@@ -20,4 +20,3 @@ export const LoginWatcher = () => {
 
   return null;
 };
-

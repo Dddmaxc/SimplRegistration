@@ -9,11 +9,11 @@ import { useAppSelector } from "./common/hooks/selector";
 import {
   otherAuthOpen,
   sModalsForRegistr,
-} from "./features/login/slice-loginModal";
+} from "./common/components/auth/forma/slice-loginModal";
 import { RegistrationWatcher } from "./features/registrationWatcher/registrationWatcher";
-import { Registration } from "./features/login/registration/Registration";
-import { LoginWatcher } from "./features/login/loginWatcher";
-import { LoginIn } from "./features/login/LoginIn";
+import { Registration } from "./common/components/auth/telephon/Registration";
+import { LoginWatcher } from "./common/components/auth/forma/loginWatcher";
+import { LoginIn } from "./common/components/auth/forma/LoginIn";
 
 export const App = () => {
   const isOpen = useAppSelector(selectorCartWatcher);

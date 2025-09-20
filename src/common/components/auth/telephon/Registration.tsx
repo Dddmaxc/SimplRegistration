@@ -16,14 +16,18 @@ import {
   Divider,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { useAppDispatch } from "../../../common/hooks/useAppDispatch";
 import { useSelector } from "react-redux";
-import { auth, db } from "../../../firebase";
-import google from "../../../assets/images/google.png";
-import apple from "../../../assets/images/apple.png";
-import "../../../App.css";
-import { registrSelector, setUser, updateUserField } from "../slice-login";
-import { closeR, openOther } from "../slice-loginModal";
+import google from "../../../../assets/images/google.png";
+import apple from "../../../../assets/images/apple.png";
+import "../../../../App.css";
+import { useAppDispatch } from "../../../hooks/useAppDispatch";
+import {
+  closeR,
+  openOther,
+  sModalsForRegistr,
+} from "../forma/slice-loginModal";
+import { auth, db } from "../../../../firebase";
+import { setUser, updateUserField } from "../forma/slice-login";
 declare global {
   interface Window {
     recaptchaVerifier?: RecaptchaVerifier;
@@ -39,7 +43,7 @@ export const Registration = () => {
   const [loading, setLoading] = useState(false);
 
   const dispatch = useAppDispatch();
-  const { buttonSwitchForRegistr } = useSelector(registrSelector);
+  const { buttonSwitchForRegistr } = useSelector(sModalsForRegistr);
 
   useEffect(() => {
     return () => {
@@ -80,7 +84,7 @@ export const Registration = () => {
     // Инициализация reCAPTCHA и отправка кода
     try {
       const appVerifier = setupRecaptcha(); // Настройка reCAPTCHA
-    console.log("Formatted phone:", `+${phone}`);
+      console.log("Formatted phone:", `+${phone}`);
       const confirmation = await signInWithPhoneNumber(
         // Отправка кода
         auth,
@@ -115,11 +119,11 @@ export const Registration = () => {
       alert("Confirmation session not found. Please try again.");
       return;
     }
-  
+
     setLoading(true); // Установка состояния загрузки
     // Подтверждение кода
     try {
-      const userCredential = await confirmationResult.confirm(code); 
+      const userCredential = await confirmationResult.confirm(code);
       const userFromFirebase = userCredential.user; //Получение пользователя из результата
 
       // Сохраняем пользователя в Firestore
@@ -137,9 +141,9 @@ export const Registration = () => {
         })
       );
 
-      alert("✅ Successful authorization!");
+      alert("Successful authorization!");
 
-      dispatch(closeR()); 
+      dispatch(closeR());
       setStep("phone");
       setCode("");
       setPhone("");
@@ -148,9 +152,10 @@ export const Registration = () => {
         window.recaptchaVerifier.clear();
         window.recaptchaVerifier = undefined;
       }
-    } catch (error: any) { // Обработка ошибок подтверждения
+    } catch (error: any) {
+      // Обработка ошибок подтверждения
       console.error("Code verification error:", error);
-      alert("❌ Invalid code or expired session. Please try again.");
+      alert("Invalid code or expired session. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -196,7 +201,6 @@ export const Registration = () => {
           }}
         >
           <Typography
-            className="boxExit"
             sx={{ cursor: "pointer" }}
             onClick={() => dispatch(closeR())}
           >
@@ -240,9 +244,6 @@ export const Registration = () => {
 
           {step === "code" && (
             <>
-              <Typography variant="h6" sx={{ textAlign: "center" }}>
-                Enter the code from the SMS
-              </Typography>
               <TextField
                 label="Cod from sms"
                 value={code}

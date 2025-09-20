@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import type { RootState } from "../../app/store";
+import type { RootState } from "../../../../app/store";
 
 export type ModalSwitchState = {
   buttonSwitchForRegistr: boolean;
@@ -29,11 +29,9 @@ const modalsForRegistr = createSlice({
     },
   },
 });
-export const sModalsForRegistr = (state: RootState) =>
-  state.modalsForRegistr.buttonSwitchForRegistr;
+export const sModalsForRegistr = (state: RootState) => state.modalsForRegistr;
 export const otherAuthOpen = (state: RootState) =>
   state.modalsForRegistr.otherAuthOpen;
-
 
 export const { openR, closeR, openOther, closeOther } =
   modalsForRegistr.actions;

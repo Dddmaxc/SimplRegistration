@@ -12,7 +12,8 @@ import { useSelector } from "react-redux";
 import type { RootState } from "../../../app/store";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { openO } from "../../../features/cart/slice-modals";
-import { openR } from "../../../features/login/slice-loginModal";
+import { openR } from "../auth/forma/slice-loginModal";
+
 
 export const Header = () => {
   const quantity = useSelector((state: RootState) => state.cart.items.length);
