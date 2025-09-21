@@ -95,8 +95,8 @@ export const Cart = () => {
                   dispatch(decreaseQuantity(el.id));
                 };
                 const HandleIncreaseQuantity = () => {
-                  const { id, title, image, price } = el;
-                  dispatch(addToCart({ id, title, image, price }));
+                  const { id, name, imageUrl, price } = el;
+                  dispatch(addToCart({ id, name, imageUrl, price }));
                 };
 
                 return (
@@ -113,12 +113,13 @@ export const Cart = () => {
                       alignItems: "center",
                       gap: "16px",
                       mb: 2,
+                      cursor: "pointer"
                     }}
                   >
                     <div className={style.containerImgInsideCart}>
                       <img
                         className={style.imgInsideCart}
-                        src={el.image}
+                        src={el.imageUrl}
                         alt="img"
                       />
                       <Typography
@@ -133,7 +134,7 @@ export const Cart = () => {
                           textOverflow: "ellipsis",
                         }}
                       >
-                        {el.title}
+                        {el.name}
                       </Typography>
                     </div>
 
@@ -246,6 +247,9 @@ export const Cart = () => {
               <div>But it's never too late to fix it</div>
             </div>
           )}
+        </Box>
+        <Box  sx={{display: "flex", justifyContent: "end", p: 2}}>
+          <Button color="success" variant="outlined">Primary</Button>
         </Box>
       </Box>
     </Modal>

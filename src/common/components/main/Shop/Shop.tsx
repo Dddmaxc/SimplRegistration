@@ -11,13 +11,22 @@ import {
   addToCart,
   type CartItem,
 } from "../../../../features/cart/ui/slice-cart";
-import type { RootState } from "../../../../app/store";
+import type { AppDispatch, RootState } from "../../../../app/store";
 import checkedCartIcon from "../../../../assets/images/selected.svg";
-import { initialProducts } from "./initialProducts";
+import {
+  fetchProductsTC,
+  selectProducts,
+} from "../../../../features/cart/ui/products/products-slice";
+import { useEffect } from "react";
 
 export const Shop = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const cartItems = useSelector((state: RootState) => state.cart.items);
+  const products = useSelector(selectProducts);
+
+  useEffect(() => {
+    dispatch(fetchProductsTC());
+  }, [dispatch]);
 
   const handleAddToCart = (product: Omit<CartItem, "quantity">) => {
     dispatch(addToCart(product));
@@ -29,22 +38,23 @@ export const Shop = () => {
         sx={{
           display: "grid",
           gridTemplateColumns: {
-            xs: "repeat(2, 1fr)", // до 600px
-            sm: "repeat(3, 1fr)", // ≥600px
-            md: "repeat(4, 1fr)", // ≥900px
-            lg: "repeat(5, 1fr)", // ≥1200px
-            xl: "repeat(6, 1fr)", // ≥1536px
+            xs: "repeat(2, 1fr)",
+            sm: "repeat(3, 1fr)",
+            md: "repeat(4, 1fr)",
+            lg: "repeat(5, 1fr)",
+            xl: "repeat(6, 1fr)",
           },
           gap: 2,
           justifyContent: "center",
         }}
       >
-        {initialProducts.map((product) => {
+        {products.map((product) => {
+          // ✅ Исправлено: используем product.id для сравнения
           const isInCart = cartItems.some((item) => item.id === product.id);
 
           return (
             <Card
-              key={product.id}
+              key={product.id} // ✅ Исправлено: используем product.id как ключ
               sx={{
                 width: "100%",
                 maxWidth: "178px",
@@ -58,8 +68,8 @@ export const Shop = () => {
             >
               <CardMedia
                 component="img"
-                image={product.image}
-                alt={product.title}
+                image={product.imageUrl}
+                alt={product.name}
                 sx={{ width: "100%", height: "161px", objectFit: "contain" }}
               />
               <CardContent sx={{ mt: 2, p: 0 }}>
@@ -80,7 +90,7 @@ export const Shop = () => {
                   }}
                   variant="subtitle1"
                 >
-                  {product.title}
+                  {product.name}
                 </Typography>
               </CardContent>
               <Box
@@ -109,8 +119,14 @@ export const Shop = () => {
                   src={isInCart ? checkedCartIcon : cart}
                   alt="cart"
                   onClick={() => {
-                    if (!isInCart) {
-                      handleAddToCart(product);
+                    // ✅ Исправлено: используем product.id
+                    if (!isInCart && product.id) {
+                      handleAddToCart({
+                        id: product.id, // ✅ Исправлено: используем product.id
+                        price: product.price,
+                        name: product.name,
+                        imageUrl: product.imageUrl,
+                      });
                     }
                   }}
                 />

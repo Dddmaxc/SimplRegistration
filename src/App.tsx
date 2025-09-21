@@ -14,16 +14,21 @@ import { RegistrationWatcher } from "./features/registrationWatcher/registration
 import { Registration } from "./common/components/auth/telephon/Registration";
 import { LoginWatcher } from "./common/components/auth/forma/loginWatcher";
 import { LoginIn } from "./common/components/auth/forma/LoginIn";
+import { LinearProgress } from "@mui/material";
+import "./App.css";
+import { selectStatus } from "./app/app-slice";
 
 export const App = () => {
   const isOpen = useAppSelector(selectorCartWatcher);
   const isOpenR = useAppSelector(sModalsForRegistr);
   const openOther = useAppSelector(otherAuthOpen);
+  const status = useAppSelector(selectStatus);
 
   return (
     <div className="App">
       {/* Передаем action открытия корзины */}
       <Header />
+      {status === "loading" && <LinearProgress color="success"/>}
       <RegistrationWatcher />
       {isOpenR && <Registration />}
       <CartWatcher />

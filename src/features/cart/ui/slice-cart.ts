@@ -1,11 +1,12 @@
-// ✅ ВСЕГДА СНАЧАЛА ИМПОРТЫ
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
+// Тип CartItem обновлен, чтобы соответствовать типу Product
+// из products-Slice, используя 'name' и 'imageUrl'.
 export type CartItem = {
   id: string;
-  title: string;
-  image: string;
+  name: string;
+  imageUrl: string;
   price: number;
   quantity: number;
 };
@@ -22,6 +23,7 @@ const cartSlice = createSlice({
   name: "cart",
   initialState,
   reducers: {
+    // Тип экшена теперь ожидает объект с 'name' и 'imageUrl'.
     addToCart(state, action: PayloadAction<Omit<CartItem, "quantity">>) {
       const existingItem = state.items.find(
         (item) => item.id === action.payload.id
@@ -33,13 +35,12 @@ const cartSlice = createSlice({
         state.items.push({ ...action.payload, quantity: 1 });
       }
     },
-    //  full removing
-
+    // Полное удаление
     removeFromCart(state, action: PayloadAction<string>) {
       state.items = state.items.filter((item) => item.id !== action.payload);
     },
 
-    //  decrease -1
+    // Уменьшение количества на 1
     decreaseQuantity(state, action: PayloadAction<string>) {
       const item = state.items.find((item) => item.id === action.payload);
       if (item && item.quantity > 1) {
