@@ -75,7 +75,7 @@ const handleSubmit = async (e: FormEvent) => {
         })
       );
 
-      console.log("User signed in:", user);
+
       dispatch(closeOther());
     } else {
       // Регистрация нового пользователя

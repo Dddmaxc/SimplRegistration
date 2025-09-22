@@ -14,21 +14,22 @@ import { RegistrationWatcher } from "./features/registrationWatcher/registration
 import { Registration } from "./common/components/auth/telephon/Registration";
 import { LoginWatcher } from "./common/components/auth/forma/loginWatcher";
 import { LoginIn } from "./common/components/auth/forma/LoginIn";
-import { LinearProgress } from "@mui/material";
 import "./App.css";
+import { Footer } from "./common/components/footer/Footer";
+import LinearProgress from "@mui/material/LinearProgress";
 import { selectStatus } from "./app/app-slice";
 
 export const App = () => {
   const isOpen = useAppSelector(selectorCartWatcher);
   const isOpenR = useAppSelector(sModalsForRegistr);
   const openOther = useAppSelector(otherAuthOpen);
-  const status = useAppSelector(selectStatus);
+   const status = useAppSelector(selectStatus);
 
   return (
     <div className="App">
       {/* Передаем action открытия корзины */}
       <Header />
-      {status === "loading" && <LinearProgress color="success"/>}
+      {status === "loading" && <LinearProgress color="success" />}
       <RegistrationWatcher />
       {isOpenR && <Registration />}
       <CartWatcher />
@@ -41,6 +42,7 @@ export const App = () => {
         <Route path="/shop" element={<Shop />} />
         <Route path="*" element={<div>Страница не найдена</div>} />
       </Routes>
+      <Footer />
     </div>
   );
 };

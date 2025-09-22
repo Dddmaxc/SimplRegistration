@@ -44,6 +44,10 @@ export const Cart = () => {
     handleClosePopover();
   };
 
+  const totalPrice = items.reduce((sum, item) => {
+    return sum + item.price * item.quantity;
+  }, 0);
+
   return (
     <Modal
       sx={{ border: 0 }}
@@ -91,10 +95,11 @@ export const Cart = () => {
           {items.length > 0 ? (
             <div>
               {items.map((el) => {
-                const HandleDecreaseQuantity = () => {
+                const handleDecreaseQuantity = () => {
                   dispatch(decreaseQuantity(el.id));
                 };
-                const HandleIncreaseQuantity = () => {
+
+                const handleIncreaseQuantity = () => {
                   const { id, name, imageUrl, price } = el;
                   dispatch(addToCart({ id, name, imageUrl, price }));
                 };
@@ -113,7 +118,7 @@ export const Cart = () => {
                       alignItems: "center",
                       gap: "16px",
                       mb: 2,
-                      cursor: "pointer"
+                      cursor: "pointer",
                     }}
                   >
                     <div className={style.containerImgInsideCart}>
@@ -148,7 +153,7 @@ export const Cart = () => {
                           minWidth: 0,
                           padding: 0,
                         }}
-                        onClick={HandleDecreaseQuantity}
+                        onClick={handleDecreaseQuantity}
                         disabled={el.quantity === 1}
                       >
                         <RemoveIcon />
@@ -175,7 +180,7 @@ export const Cart = () => {
                           minWidth: 0,
                           padding: 0,
                         }}
-                        onClick={HandleIncreaseQuantity}
+                        onClick={handleIncreaseQuantity}
                       >
                         <AddIcon />
                       </Button>
@@ -236,6 +241,7 @@ export const Cart = () => {
                         Remove
                       </Box>
                     </Popover>
+                    {}
                   </Box>
                 );
               })}
@@ -248,9 +254,37 @@ export const Cart = () => {
             </div>
           )}
         </Box>
-        <Box  sx={{display: "flex", justifyContent: "end", p: 2}}>
-          <Button color="success" variant="outlined">Primary</Button>
-        </Box>
+        {items.length ? (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "end",
+              p: 2,
+              alignItems: "center",
+              gap: "35px",
+              background: "#2e7d320d  ",
+              borderRadius: "4px",
+              width: "30%",
+              ml: "66.8%",
+            }}
+          >
+            <Box
+              sx={{
+                fontSize: "xx-large",
+                color: "#000",
+                fontWeight: "700",
+                lineHeight: "1",
+                fontFamily: "'Inter', sans-serif",
+                cursor: "pointer",
+              }}
+            >
+              {totalPrice}
+            </Box>
+            <Button color="success" variant="outlined">
+              Go to pay
+            </Button>
+          </Box>
+        ) : null}
       </Box>
     </Modal>
   );

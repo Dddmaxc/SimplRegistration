@@ -257,7 +257,7 @@ export const Registration = () => {
                 onClick={handleVerifyCode}
                 disabled={loading || code.length < 6}
                 fullWidth
-                sx={{ height: "48px", fontSize: "16px" }}
+               sx={{ height: "48px", fontSize: "16px" }} 
               >
                 {loading ? "Sending..." : "Continue"}
               </Button>

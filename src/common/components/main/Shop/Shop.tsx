@@ -33,7 +33,10 @@ export const Shop = () => {
   };
 
   return (
-    <Container maxWidth={false} sx={{ mt: 8, maxWidth: "1800px", mx: "auto" }}>
+    <Container
+      maxWidth={false}
+      sx={{ mt: 15, maxWidth: "1800px", mx: "auto", height: "100vh" }}
+    >
       <Box
         sx={{
           display: "grid",
@@ -64,6 +67,7 @@ export const Shop = () => {
                 justifyContent: "space-between",
                 p: 1,
                 mx: "auto",
+                background: "linear-gradient(180deg, rgba(150, 5, 60, 1) 20%, #181733)"
               }}
             >
               <CardMedia
@@ -76,7 +80,7 @@ export const Shop = () => {
                 <Typography
                   component="div"
                   sx={{
-                    color: "#595656",
+                    color: "#fdb830",
                     padding: 0,
                     display: "-webkit-box",
                     WebkitBoxOrient: "vertical",
@@ -107,7 +111,7 @@ export const Shop = () => {
                     fontSize: "1.1rem",
                     fontWeight: "700",
                     lineHeight: "1",
-                    color: "#000",
+                    color: "#fdb830",
                     fontFamily: "'Inter', sans-serif",
                     cursor: "pointer",
                   }}
