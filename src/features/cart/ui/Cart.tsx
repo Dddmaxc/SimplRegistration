@@ -259,7 +259,8 @@ export const Cart = () => {
             sx={{
               display: "flex",
               justifyContent: "end",
-              p: 2,
+              m: 1,
+              p: 1,
               alignItems: "center",
               gap: "35px",
               background: "#2e7d320d  ",
@@ -278,7 +279,7 @@ export const Cart = () => {
                 cursor: "pointer",
               }}
             >
-              {totalPrice}
+              {totalPrice}$
             </Box>
             <Button color="success" variant="outlined">
               Go to pay
