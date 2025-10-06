@@ -14,7 +14,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import { addToCart, decreaseQuantity, removeFromCart } from "./slice-cart";
-import { closeC } from "../slice-modals"; // импортируем action закрытия корзины
+import { closeC } from "../slice-modals";
 import { Divider, useMediaQuery, useTheme } from "@mui/material";
 
 export const Cart = () => {
@@ -27,7 +27,7 @@ export const Cart = () => {
   const items = useSelector((state: RootState) => state.cart.items);
   const open = useSelector(
     (state: RootState) => state.modals?.buttonSwitch ?? false
-  ); // состояние открытия корзины из cartModal
+  );
   const dispatch = useDispatch();
 
   const handleClick = (
@@ -53,12 +53,7 @@ export const Cart = () => {
   }, 0);
 
   return (
-    <Modal
-      sx={{ border: 0 }}
-      keepMounted
-      open={open}
-      onClose={() => dispatch(closeC())}
-    >
+    <Modal keepMounted open={open} onClose={() => dispatch(closeC())}>
       <Box
         sx={{
           position: "absolute",
@@ -66,230 +61,258 @@ export const Cart = () => {
           left: "50%",
           transform: "translate(-50%, -50%)",
           width: isMobile ? "90%" : "960px",
-          height: 500,
+          height: isMobile ? "auto" : 500,
+          maxHeight: "90vh",
           bgcolor: "background.paper",
           boxShadow: 24,
           borderRadius: 2,
-          border: 0,
-          pt: isMobile ? 1 : 2
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
         }}
       >
-        <Typography variant="h6" component="h2">
-          <div className={style.headerCart}>
-            <div>Cart</div>
-            <div
+        {/* Header */}
+        <Box sx={{ p: isMobile ? 1 : 2 }}>
+          <Box
+            className={style.headerCart}
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <Typography variant="h6">Cart</Typography>
+            <CloseIcon
               onClick={() => dispatch(closeC())}
-              style={{ cursor: "pointer" }}
-            >
-              <CloseIcon />
-            </div>
-          </div>
-        </Typography>
+              sx={{ cursor: "pointer" }}
+            />
+          </Box>
+        </Box>
 
-        <Divider sx={{ borderColor: "#ccc", mt: isMobile ? 1 : 2 }}/>
+        <Divider sx={{ borderColor: "#ccc" }} />
 
+        {/* Items */}
         <Box
-          component="div"
           sx={{
             mt: 2,
-            maxHeight: 380,
+            maxHeight: isMobile ? "50vh" : 380,
             overflowY: "auto",
-            p: 2,
+            px: isMobile ? 1 : 2,
           }}
         >
           {items.length > 0 ? (
-            <div>
-              {items.map((el) => {
-                const handleDecreaseQuantity = () => {
-                  dispatch(decreaseQuantity(el.id));
-                };
+            items.map((el) => {
+              const handleDecreaseQuantity = () =>
+                dispatch(decreaseQuantity(el.id));
+              const handleIncreaseQuantity = () =>
+                dispatch(
+                  addToCart({
+                    id: el.id,
+                    name: el.name,
+                    imageUrl: el.imageUrl,
+                    price: el.price,
+                  })
+                );
 
-                const handleIncreaseQuantity = () => {
-                  const { id, name, imageUrl, price } = el;
-                  dispatch(addToCart({ id, name, imageUrl, price }));
-                };
-
-                return (
+              return (
+                <Box
+                  key={el.id}
+                  sx={{
+                    border: "1px solid #d2d2d2",
+                    borderRadius: 1,
+                    p: 2,
+                    mb: 2,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 2,
+                  }}
+                >
                   <Box
-                    key={el.id}
-                    component="div"
+                    className={style.containerImgInsideCart}
                     sx={{
-                      width: "100",
-                      border: "1px solid #d2d2d2",
-                      height: "80px",
-                      p: "16px",
-                      borderRadius: 1,
                       display: "flex",
                       alignItems: "center",
-                      gap: "16px",
-                      mb: 2,
-                      cursor: "pointer",
+                      gap: isMobile ? 0 : 2,
+                      width: isMobile ? "auto" : "400px",
                     }}
                   >
-                    <div className={style.containerImgInsideCart}>
-                      <img
-                        className={style.imgInsideCart}
-                        src={el.imageUrl}
-                        alt="img"
-                      />
-                      <Typography
-                        component="div"
-                        sx={{
-                          width: "422px",
-                          fontSize: "14px",
-                          display: "-webkit-box",
-                          WebkitBoxOrient: "vertical",
-                          WebkitLineClamp: 2,
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                        }}
-                      >
-                        {el.name}
-                      </Typography>
-                    </div>
-
-                    <Box
-                      sx={{ display: "flex", width: "145px", height: "40px" }}
-                    >
-                      <Button
-                        sx={{
-                          width: "40px",
-                          height: "40px",
-                          minWidth: 0,
-                          padding: 0,
-                        }}
-                        onClick={handleDecreaseQuantity}
-                        disabled={el.quantity === 1}
-                      >
-                        <RemoveIcon />
-                      </Button>
-                      <Box
-                        component={"div"}
-                        sx={{
-                          width: "56px",
-                          height: "40px",
-                          border: "1px solid #a6a5a5",
-                          borderRadius: "10px",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          textAlign: "center",
-                        }}
-                      >
-                        {el.quantity}
-                      </Box>
-                      <Button
-                        sx={{
-                          width: "40px",
-                          height: "40px",
-                          minWidth: 0,
-                          padding: 0,
-                        }}
-                        onClick={handleIncreaseQuantity}
-                      >
-                        <AddIcon />
-                      </Button>
-                    </Box>
-                    <Box component={"div"} sx={{ width: "120px" }}>
-                      <Typography
-                        sx={{
-                          textAlign: "right",
-                          fontSize: "1.1rem",
-                          fontWeight: "700",
-                          lineHeight: "1",
-                          color: "#000",
-                          fontFamily: "'Inter', sans-serif",
-                          cursor: "pointer",
-                        }}
-                      >
-                        {el.price * el.quantity}$
-                      </Typography>
-                    </Box>
-
-                    <Button
-                      aria-describedby={`popover-${el.id}`}
-                      onClick={(e) => handleClick(e, el.id)}
-                    >
-                      <img
-                        style={{ width: "40px", height: "40px" }}
-                        src={eli}
-                        alt="options"
-                      />
-                    </Button>
-
-                    <Popover
-                      id={`popover-${el.id}`}
-                      open={Boolean(anchorEl) && selectedItemId === el.id}
-                      onClose={handleClosePopover}
-                      anchorEl={anchorEl}
-                      anchorOrigin={{
-                        vertical: "top",
-                        horizontal: "left",
+                    <img
+                      className={style.imgInsideCart}
+                      src={el.imageUrl}
+                      alt="img"
+                      style={{
+                        width: isMobile ? 60 : 80,
+                        height: isMobile ? 60 : 80,
+                        objectFit: "cover",
+                        borderRadius: 8,
                       }}
-                      sx={{ boxShadow: "none" }}
+                    />
+                    <Typography
+                      sx={{
+                        fontSize: "14px",
+                        display: "-webkit-box",
+                        WebkitBoxOrient: "vertical",
+                        WebkitLineClamp: 2,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        maxWidth: isMobile ? "100%" : "250px",
+                      }}
                     >
-                      <Box
-                        onClick={() => handleRemove(el.id)}
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "8px",
-                          cursor: "pointer",
-                          transition: "color 0.2s ease",
-                          p: 2,
-                          "&:hover": {
-                            color: "#d32f2f",
-                          },
-                        }}
-                      >
-                        <DeleteIcon />
-                        Remove
-                      </Box>
-                    </Popover>
-                    {}
+                      {el.name}
+                    </Typography>
                   </Box>
-                );
-              })}
-            </div>
+
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: isMobile ? 0 : 1,
+                    }}
+                  >
+                    <Button
+                      sx={{
+                        minWidth: 0,
+                        width: 36,
+                        height: 36,
+                        padding: 0,
+                      }}
+                      onClick={handleDecreaseQuantity}
+                      disabled={el.quantity === 1}
+                    >
+                      <RemoveIcon fontSize="small" />
+                    </Button>
+                    <Box
+                      sx={{
+                        width: isMobile ? 20 : 40,
+                        height: isMobile ? 20 : 36,
+                        border: "1px solid #a6a5a5",
+                        borderRadius: isMobile ? "4px" : "8px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      {el.quantity}
+                    </Box>
+                    <Button
+                      sx={{
+                        minWidth: 0,
+                        width: 36,
+                        height: 36,
+                        padding: 0,
+                      }}
+                      onClick={handleIncreaseQuantity}
+                    >
+                      <AddIcon fontSize="small" />
+                    </Button>
+                  </Box>
+
+                  <Box sx={{ ml: "auto", mr: isMobile ? 0 : 2 }}>
+                    <Typography
+                      sx={{
+                        fontSize: "1.1rem",
+                        fontWeight: 700,
+                        color: "#000",
+                        fontFamily: "'Inter', sans-serif",
+                      }}
+                    >
+                      {el.price * el.quantity}$
+                    </Typography>
+                  </Box>
+
+                  {/* Popover */}
+                  <Button
+                    aria-describedby={`popover-${el.id}`}
+                    onClick={(e) => handleClick(e, el.id)}
+                  >
+                    <img
+                      src={eli}
+                      alt="options"
+                      style={{ width: 36, height: 36 }}
+                    />
+                  </Button>
+
+                  <Popover
+                    id={`popover-${el.id}`}
+                    open={Boolean(anchorEl) && selectedItemId === el.id}
+                    onClose={handleClosePopover}
+                    anchorEl={anchorEl}
+                    anchorOrigin={{
+                      vertical: "top",
+                      horizontal: "left",
+                    }}
+                  >
+                    <Box
+                      onClick={() => handleRemove(el.id)}
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        p: 2,
+                        cursor: "pointer",
+                        "&:hover": { color: "#d32f2f" },
+                      }}
+                    >
+                      <DeleteIcon fontSize="small" />
+                      Remove
+                    </Box>
+                  </Popover>
+                </Box>
+              );
+            })
           ) : (
-            <div className={style.cartContainer}>
-              <img src={cart} alt="cart" width={220} height={180} />
-              <h3>Shopping Cart is empty</h3>
-              <div>But it's never too late to fix it</div>
-            </div>
+            <Box
+              className={style.cartContainer}
+              sx={{ textAlign: "center", mt: 4 }}
+            >
+              <img
+                src={cart}
+                alt="cart"
+                width={isMobile ? 180 : 220}
+                height={isMobile ? 140 : 180}
+              />
+              <Typography variant="h6">Shopping Cart is empty</Typography>
+              <Typography variant="body2">
+                But it's never too late to fix it
+              </Typography>
+            </Box>
           )}
         </Box>
-        {items.length ? (
+        <Divider sx={{ borderColor: "#ccc" }} />
+        {items.length > 0 && (
           <Box
             sx={{
               display: "flex",
-              justifyContent: "end",
-              m: 1,
-              p: 1,
+              flexDirection: isMobile ? "column" : "row",
+              justifyContent: isMobile ? "center" : "flex-end",
               alignItems: "center",
-              gap: isMobile ? 2 : 6,
-              background: isMobile ? "none" : "#2e7d320d",
-              borderRadius: "4px",
-              width: isMobile ? "26.7%" : "30%",
-              ml: "66.8%",
+              gap: isMobile ? 1.5 : 3,
+              borderRadius: 2,
+              px: isMobile ? 2 : 4,
+              py: isMobile ? 1.5 : 2,
+              mt: isMobile ? 2 : 0,
+              background:
+                "linear-gradient(180deg, rgb(255, 255, 255), rgba(182, 179, 244, 1) 89%)",
             }}
           >
-            <Box
+            <Typography
               sx={{
-                fontSize: isMobile ? "18px" : "xx-large",
+                fontSize: isMobile ? "16px" : "24px",
+                fontWeight: 700,
                 color: "#000",
-                fontWeight: "700",
-                lineHeight: "1",
                 fontFamily: "'Inter', sans-serif",
-                cursor: "pointer",
               }}
             >
               {totalPrice}$
-            </Box>
+            </Typography>
+
             <Button
               sx={{
-                width: isMobile ? "90%" : "auto",
-                fontSize: isMobile ? "10px" : "16px",
+                background: isMobile ? "none" : "#2e7d320d",
+                width: isMobile ? "100%" : "auto",
+                fontSize: isMobile ? "12px" : "16px",
+                padding: isMobile ? "8px 12px" : "10px 20px",
               }}
               color="success"
               variant="outlined"
@@ -297,7 +320,7 @@ export const Cart = () => {
               Go to pay
             </Button>
           </Box>
-        ) : null}
+        )}
       </Box>
     </Modal>
   );
