@@ -56,5 +56,6 @@ const loginModalSlice = createSlice({
 
 export const { setUser, updateUserField, removeUser } = loginModalSlice.actions;
 export const registrSelector = (state: RootState) => state.login.user;
+export const idIsLoginedState = (state: RootState) => state.login.user.id;
 
 export default loginModalSlice.reducer;

@@ -15,10 +15,14 @@ import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import { addToCart, decreaseQuantity, removeFromCart } from "./slice-cart";
 import { closeC } from "../slice-modals"; // импортируем action закрытия корзины
+import { Divider, useMediaQuery, useTheme } from "@mui/material";
 
 export const Cart = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const items = useSelector((state: RootState) => state.cart.items);
   const open = useSelector(
@@ -61,13 +65,13 @@ export const Cart = () => {
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
+          width: isMobile ? "90%" : "960px",
           height: 500,
-          width: 960,
           bgcolor: "background.paper",
           boxShadow: 24,
           borderRadius: 2,
           border: 0,
-          p: "16px",
+          pt: isMobile ? 1 : 2
         }}
       >
         <Typography variant="h6" component="h2">
@@ -82,7 +86,7 @@ export const Cart = () => {
           </div>
         </Typography>
 
-        <hr style={{ borderColor: "#fdfcfcff" }} />
+        <Divider sx={{ borderColor: "#ccc", mt: isMobile ? 1 : 2 }}/>
 
         <Box
           component="div"
@@ -90,6 +94,7 @@ export const Cart = () => {
             mt: 2,
             maxHeight: 380,
             overflowY: "auto",
+            p: 2,
           }}
         >
           {items.length > 0 ? (
@@ -262,16 +267,16 @@ export const Cart = () => {
               m: 1,
               p: 1,
               alignItems: "center",
-              gap: "35px",
-              background: "#2e7d320d  ",
+              gap: isMobile ? 2 : 6,
+              background: isMobile ? "none" : "#2e7d320d",
               borderRadius: "4px",
-              width: "30%",
+              width: isMobile ? "26.7%" : "30%",
               ml: "66.8%",
             }}
           >
             <Box
               sx={{
-                fontSize: "xx-large",
+                fontSize: isMobile ? "18px" : "xx-large",
                 color: "#000",
                 fontWeight: "700",
                 lineHeight: "1",
@@ -281,7 +286,14 @@ export const Cart = () => {
             >
               {totalPrice}$
             </Box>
-            <Button color="success" variant="outlined">
+            <Button
+              sx={{
+                width: isMobile ? "90%" : "auto",
+                fontSize: isMobile ? "10px" : "16px",
+              }}
+              color="success"
+              variant="outlined"
+            >
               Go to pay
             </Button>
           </Box>

@@ -14,6 +14,8 @@ import {
   Typography,
   Modal,
   Divider,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useSelector } from "react-redux";
@@ -41,6 +43,8 @@ export const Registration = () => {
     useState<ConfirmationResult | null>(null);
   const [step, setStep] = useState<"phone" | "code">("phone");
   const [loading, setLoading] = useState(false);
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const dispatch = useAppDispatch();
   const { buttonSwitchForRegistr } = useSelector(sModalsForRegistr);
@@ -179,7 +183,7 @@ export const Registration = () => {
     >
       <Box
         sx={{
-          width: "440px",
+          width: isMobile ? "95%" : "440px",
           minHeight: "507px",
           mx: "auto",
           mt: 28,
@@ -196,7 +200,6 @@ export const Registration = () => {
           sx={{
             display: "flex",
             justifyContent: "space-between",
-            mb: 1,
             p: "16px 16px 0 16px",
           }}
         >
@@ -295,7 +298,7 @@ export const Registration = () => {
 
         <Box
           sx={{
-            width: "408px",
+            width: isMobile ? "95%" : "408px",
             height: "46px",
             borderRadius: "10px",
             border: "1px solid #ccc",
@@ -315,7 +318,7 @@ export const Registration = () => {
 
         <Box
           sx={{
-            width: "408px",
+            width: isMobile ? "95%" : "408px",
             height: "46px",
             borderRadius: "10px",
             border: "1px solid #ccc",

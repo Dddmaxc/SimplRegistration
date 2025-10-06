@@ -9,14 +9,18 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCartOutlined";
 import { styled } from "@mui/material/styles";
 import Badge, { badgeClasses } from "@mui/material/Badge";
 import { useSelector } from "react-redux";
-import type { RootState } from "../../../app/store";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { openO } from "../../../features/cart/slice-modals";
 import { openR } from "../auth/forma/slice-loginModal";
 import Barca from "../../../assets/images/logoBarca.svg";
+import Button from "@mui/material/Button";
+import { Link as RouterLink } from "react-router-dom";
+import { idIsLoginedState } from "../auth/forma/slice-login";
+import { selectQuantity } from "../../../features/cart/ui/slice-cart";
 
 export const Header = () => {
-  const quantity = useSelector((state: RootState) => state.cart.items.length);
+  const quantity = useSelector(selectQuantity);
+  const userId = useSelector(idIsLoginedState);
   const dispatch = useAppDispatch();
   const openHandler = () => {
     dispatch(openO());
@@ -44,22 +48,27 @@ export const Header = () => {
             component="div"
             sx={{ flexGrow: 1, mt: "5px", cursor: "pointer" }}
           >
-            <img src={Barca} alt="logo" width={50} height={50} />
+            <Button sx={{ borderRadius: "50%" }} component={RouterLink} to="/">
+              <img src={Barca} alt="logo" width={50} height={50} />
+            </Button>
           </Typography>
           <Stack direction="row" spacing={2}>
             <IconButton onClick={openForRHandler}>
               <Login sx={{ width: 30, height: 30, color: "white" }} />
             </IconButton>
-            <IconButton onClick={openHandler}>
-              <ShoppingCartIcon
-                sx={{ width: 30, height: 30, color: "white" }}
-              />
-              <CartBadge
-                badgeContent={quantity}
-                color="warning"
-                overlap="circular"
-              />
-            </IconButton>
+            
+            {userId && (
+              <IconButton onClick={openHandler}>
+                <ShoppingCartIcon
+                  sx={{ width: 30, height: 30, color: "white" }}
+                />
+                <CartBadge
+                  badgeContent={quantity}
+                  color="warning"
+                  overlap="circular"
+                />
+              </IconButton>
+            )}
           </Stack>
         </Toolbar>
       </AppBar>
