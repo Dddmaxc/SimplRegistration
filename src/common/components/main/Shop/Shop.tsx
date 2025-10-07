@@ -16,17 +16,22 @@ export const Shop = () => {
   return (
     <Container
       maxWidth={false}
-      sx={{ mt: 8, maxWidth: "1520px", mx: "auto", height: "100%" }}
+      sx={{
+        mt: { xs: 4, md: 8 },
+        maxWidth: "1520px",
+        mx: "auto",
+        height: "100%",
+      }}
     >
       <Box
         sx={{
           display: "grid",
           gridTemplateColumns: {
-            xs: "repeat(1, 1fr)",
-            sm: "repeat(1, 1fr)",
-            md: "repeat(2, 1fr)",
-            lg: "repeat(3, 1fr)",
-            xl: "repeat(4, 1fr)",
+            xs: "repeat(2, 1fr)",
+            sm: "repeat(2, 1fr)",
+            md: "repeat(3, 1fr)",
+            lg: "repeat(4, 1fr)",
+            xl: "repeat(5, 1fr)",
           },
           gap: 0.5,
           justifyContent: "center",

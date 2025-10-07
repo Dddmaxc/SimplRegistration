@@ -183,13 +183,13 @@ export const Registration = () => {
     >
       <Box
         sx={{
-          width: isMobile ? "95%" : "440px",
+          width: isMobile ? "96%" : "440px",
           minHeight: "507px",
           mx: "auto",
-          mt: 28,
+          mt: isMobile ? 20 : 28,
           display: "flex",
           flexDirection: "column",
-          gap: 2,
+          gap: isMobile ? 1 : 2,
           bgcolor: "#fff",
           borderRadius: "10px",
           border: "none",

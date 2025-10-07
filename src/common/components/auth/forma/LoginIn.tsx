@@ -43,7 +43,7 @@ export const LoginIn = () => {
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name: fieldName, value } = e.target;
 
-    dispatch(
+    dispatch( 
       setUser({
         name: fieldName === "name" ? value : name,
         email: fieldName === "email" ? value : email,

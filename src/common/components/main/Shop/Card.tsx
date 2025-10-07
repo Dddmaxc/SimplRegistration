@@ -5,6 +5,8 @@ import {
   Typography,
   Box,
   Button,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../../../app/store";
@@ -23,6 +25,8 @@ export const ProductCard = () => {
   const dispatch = useDispatch<AppDispatch>();
   const cartItems = useSelector((state: RootState) => state.cart.items);
   const products = useSelector(selectProducts);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   useEffect(() => {
     dispatch(fetchProductsTC());
@@ -40,8 +44,8 @@ export const ProductCard = () => {
           <Card
             key={product.id}
             sx={{
-              width: "365px",
-              height: "500px",
+              width: isMobile ? "195px" : "365px",
+              height: isMobile ? "285px" : "500px",
               transition: "0.3s",
               "&:hover": { transform: "translateY(-4px)" },
               display: "flex",
@@ -54,7 +58,12 @@ export const ProductCard = () => {
               height="300"
               image={product.imageUrl}
               alt={product.name}
-              sx={{ objectFit: "inherit", maxWidth: "100", display: "flex", pt: 6 }}
+              sx={{
+                objectFit: "inherit",
+                maxWidth: "100",
+                display: "flex",
+                pt: isMobile ? 0 : 6,
+              }}
             />
 
             <CardContent>
@@ -97,7 +106,8 @@ export const ProductCard = () => {
                     }
                   }}
                 >
-                  Add to cart
+                  {isMobile ? "add" : "Add to cart"}
+                  
                 </Button>
               </Box>
             </CardContent>
