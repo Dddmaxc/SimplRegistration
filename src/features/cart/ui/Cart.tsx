@@ -60,7 +60,7 @@ export const Cart = () => {
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          width: isMobile ? "90%" : "960px",
+          width: isMobile ? "96%" : "960px",
           height: isMobile ? "auto" : 500,
           maxHeight: "90vh",
           bgcolor: "background.paper",
@@ -123,7 +123,7 @@ export const Cart = () => {
                     p: 2,
                     mb: 2,
                     display: "flex",
-                    flexDirection: "column",
+                    flexDirection: "row",
                     alignItems: "center",
                     gap: 2,
                   }}
@@ -135,6 +135,7 @@ export const Cart = () => {
                       alignItems: "center",
                       gap: isMobile ? 0 : 2,
                       width: isMobile ? "auto" : "400px",
+                      overflow: isMobile ? "hidden" : "visible",
                     }}
                   >
                     <img
@@ -255,7 +256,8 @@ export const Cart = () => {
                       }}
                     >
                       <DeleteIcon fontSize="small" />
-                      Remove
+                      {isMobile ? "" : "Remove"}
+                      
                     </Box>
                   </Popover>
                 </Box>
@@ -273,7 +275,7 @@ export const Cart = () => {
                 height={isMobile ? 140 : 180}
               />
               <Typography variant="h6">Shopping Cart is empty</Typography>
-              <Typography variant="body2">
+              <Typography sx={{pb: isMobile ? 3 : 0}} variant="body2">
                 But it's never too late to fix it
               </Typography>
             </Box>
@@ -292,8 +294,6 @@ export const Cart = () => {
               px: isMobile ? 2 : 4,
               py: isMobile ? 1.5 : 2,
               mt: isMobile ? 2 : 0,
-              background:
-                "linear-gradient(180deg, rgb(255, 255, 255), rgba(182, 179, 244, 1) 89%)",
             }}
           >
             <Typography
