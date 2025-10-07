@@ -53,10 +53,12 @@ export const Header = () => {
             </Button>
           </Typography>
           <Stack direction="row" spacing={2}>
-            <IconButton onClick={openForRHandler}>
-              <Login sx={{ width: 30, height: 30, color: "white" }} />
-            </IconButton>
-            
+            {!userId && (
+              <IconButton onClick={openForRHandler}>
+                <Login sx={{ width: 30, height: 30, color: "white" }} />
+              </IconButton>
+            )}
+
             {userId && (
               <IconButton onClick={openHandler}>
                 <ShoppingCartIcon

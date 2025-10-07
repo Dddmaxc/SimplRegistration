@@ -44,8 +44,9 @@ export const ProductCard = () => {
           <Card
             key={product.id}
             sx={{
-              width: isMobile ? "195px" : "365px",
-              height: isMobile ? "285px" : "500px",
+              cursor: "pointer",
+              width: isMobile ? "195px" : "300px",
+              height: isMobile ? "285px" : "430px", 
               transition: "0.3s",
               "&:hover": { transform: "translateY(-4px)" },
               display: "flex",
@@ -62,7 +63,7 @@ export const ProductCard = () => {
                 objectFit: "inherit",
                 maxWidth: "100",
                 display: "flex",
-                pt: isMobile ? 0 : 6,
+                pt: isMobile ? 0 : 4,
               }}
             />
 
