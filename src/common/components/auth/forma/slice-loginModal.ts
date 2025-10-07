@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+  import { createSlice } from "@reduxjs/toolkit";
 import type { RootState } from "../../../../app/store";
 
 export type ModalSwitchState = {

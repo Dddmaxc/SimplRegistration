@@ -46,7 +46,7 @@ export const ProductCard = () => {
             sx={{
               cursor: "pointer",
               width: isMobile ? "195px" : "300px",
-              height: isMobile ? "285px" : "430px", 
+              height: isMobile ? "285px" : "430px",
               transition: "0.3s",
               "&:hover": { transform: "translateY(-4px)" },
               display: "flex",
@@ -108,7 +108,6 @@ export const ProductCard = () => {
                   }}
                 >
                   {isMobile ? "add" : "Add to cart"}
-                  
                 </Button>
               </Box>
             </CardContent>

@@ -29,7 +29,7 @@ import {
   sModalsForRegistr,
 } from "../forma/slice-loginModal";
 import { auth, db } from "../../../../firebase";
-import { setUser, updateUserField } from "../forma/slice-login";
+import { setUser } from "../forma/authSlice";
 declare global {
   interface Window {
     recaptchaVerifier?: RecaptchaVerifier;
@@ -43,8 +43,8 @@ export const Registration = () => {
     useState<ConfirmationResult | null>(null);
   const [step, setStep] = useState<"phone" | "code">("phone");
   const [loading, setLoading] = useState(false);
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const dispatch = useAppDispatch();
   const { buttonSwitchForRegistr } = useSelector(sModalsForRegistr);
@@ -78,92 +78,75 @@ export const Registration = () => {
     return window.recaptchaVerifier; // Возвращаем экземпляр reCAPTCHA
   };
   // Отправка кода на указанный номер телефона
-  const handleSendCode = async () => {
-    if (!phone || phone.length < 8) {
-      alert("Please enter a valid phone number");
-      return; // Простая проверка на минимальную длину
+const handleSendCode = async () => {
+  if (!phone || phone.length < 8) {
+    alert("Please enter a valid phone number");
+    return;
+  }
+  setLoading(true);
+  try {
+    const appVerifier = setupRecaptcha();
+    const confirmation = await signInWithPhoneNumber(auth, `+${phone}`, appVerifier);
+    setConfirmationResult(confirmation);
+    setStep("code");
+    // УДАЛЯЕМ обновление Redux здесь
+  } catch (error) {
+    alert("Error sending SMS. Try again later.");
+    if (window.recaptchaVerifier) {
+      window.recaptchaVerifier.clear();
+      window.recaptchaVerifier = undefined;
     }
+  } finally {
+    setLoading(false);
+  }
+};
 
-    setLoading(true); // Установка состояния загрузки
-    // Инициализация reCAPTCHA и отправка кода
-    try {
-      const appVerifier = setupRecaptcha(); // Настройка reCAPTCHA
-      console.log("Formatted phone:", `+${phone}`);
-      const confirmation = await signInWithPhoneNumber(
-        // Отправка кода
-        auth,
-        `+${phone}`,
-        appVerifier
-      );
-      setConfirmationResult(confirmation); // Сохранение результата для последующего подтверждения
-      setStep("code"); // Переход к следующему шагу (ввод кода)
-      // alert("Code sent! Please check your SMS.");
-      // Сохранение номера телефона в Redux
-      dispatch(updateUserField({ field: "phoneNumber", value: phone }));
-    } catch (error: any) {
-      console.error("Error sending code:", error);
-      alert("Error sending SMS. Try again later.");
-      if (window.recaptchaVerifier) {
-        window.recaptchaVerifier.clear();
-        window.recaptchaVerifier = undefined;
-      }
-    } finally {
-      // Сброс состояния загрузки
-      setLoading(false);
+const handleVerifyCode = async () => {
+  if (!code || code.length < 6) {
+    alert("Please enter the correct code");
+    return;
+  }
+  if (!confirmationResult) {
+    alert("Confirmation session not found. Please try again.");
+    return;
+  }
+  setLoading(true);
+  try {
+    const userCredential = await confirmationResult.confirm(code);
+    const userFromFirebase = userCredential.user;
+
+    await setDoc(doc(db, "users", userFromFirebase.uid), {
+      uid: userFromFirebase.uid,
+      phoneNumber: userFromFirebase.phoneNumber,
+      createdAt: new Date(),
+    });
+
+    dispatch(
+      setUser({
+        id: userFromFirebase.uid,
+        phoneNumber: userFromFirebase.phoneNumber || "",
+        token: userFromFirebase.refreshToken,
+        email: userFromFirebase.email || "",
+        name: userFromFirebase.displayName || "",
+      })
+    );
+
+    alert("Successful authorization!");
+    dispatch(closeR());
+    setStep("phone");
+    setCode("");
+    setPhone("");
+
+    if (window.recaptchaVerifier) {
+      window.recaptchaVerifier.clear();
+      window.recaptchaVerifier = undefined;
     }
-  };
-  // Подтверждение кода, введенного пользователем
-  const handleVerifyCode = async () => {
-    if (!code || code.length < 6) {
-      alert("Please enter the correct code");
-      return;
-    }
-    if (!confirmationResult) {
-      // Проверка наличия confirmationResult
-      alert("Confirmation session not found. Please try again.");
-      return;
-    }
-
-    setLoading(true); // Установка состояния загрузки
-    // Подтверждение кода
-    try {
-      const userCredential = await confirmationResult.confirm(code);
-      const userFromFirebase = userCredential.user; //Получение пользователя из результата
-
-      // Сохраняем пользователя в Firestore
-      await setDoc(doc(db, "users", userFromFirebase.uid), {
-        uid: userFromFirebase.uid,
-        phoneNumber: userFromFirebase.phoneNumber,
-        createdAt: new Date(),
-      });
-      // Сохранение данных пользователя в Redux
-      dispatch(
-        setUser({
-          id: userFromFirebase.uid,
-          phoneNumber: userFromFirebase.phoneNumber,
-          token: userFromFirebase.refreshToken,
-        })
-      );
-
-      alert("Successful authorization!");
-
-      dispatch(closeR());
-      setStep("phone");
-      setCode("");
-      setPhone("");
-      // Очистка reCAPTCHA после успешной авторизации
-      if (window.recaptchaVerifier) {
-        window.recaptchaVerifier.clear();
-        window.recaptchaVerifier = undefined;
-      }
-    } catch (error: any) {
-      // Обработка ошибок подтверждения
-      console.error("Code verification error:", error);
-      alert("Invalid code or expired session. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  } catch (error) {
+    alert("Invalid code or expired session. Please try again.");
+  } finally {
+    setLoading(false);
+  }
+};
   // Повторная отправка кода
   const handleResendCode = () => {
     setStep("phone");
@@ -260,7 +243,7 @@ export const Registration = () => {
                 onClick={handleVerifyCode}
                 disabled={loading || code.length < 6}
                 fullWidth
-               sx={{ height: "48px", fontSize: "16px" }} 
+                sx={{ height: "48px", fontSize: "16px" }}
               >
                 {loading ? "Sending..." : "Continue"}
               </Button>

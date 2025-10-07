@@ -2,31 +2,41 @@ import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import { Login } from "@mui/icons-material";
 import Stack from "@mui/material/Stack";
 import IconButton from "@mui/material/IconButton";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCartOutlined";
 import { styled } from "@mui/material/styles";
 import Badge, { badgeClasses } from "@mui/material/Badge";
-import { useSelector } from "react-redux";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { openO } from "../../../features/cart/slice-modals";
 import { openR } from "../auth/forma/slice-loginModal";
 import Barca from "../../../assets/images/logoBarca.svg";
 import Button from "@mui/material/Button";
 import { Link as RouterLink } from "react-router-dom";
-import { idIsLoginedState } from "../auth/forma/slice-login";
 import { selectQuantity } from "../../../features/cart/ui/slice-cart";
+import LogoutIcon from "@mui/icons-material/Logout";
+import { getAuth, signOut } from "firebase/auth";
+import { clearUser, selectUserId } from "../auth/forma/authSlice";
+import PermIdentitySharpIcon from "@mui/icons-material/PermIdentitySharp";
+import { useAppSelector } from "../../hooks/selector";
 
 export const Header = () => {
-  const quantity = useSelector(selectQuantity);
-  const userId = useSelector(idIsLoginedState);
+  const quantity = useAppSelector(selectQuantity);
+  const userId = useAppSelector(selectUserId);
   const dispatch = useAppDispatch();
-  const openHandler = () => {
+
+  const handleCartOpen = () => {
     dispatch(openO());
   };
-  const openForRHandler = () => {
+
+  const handleLoginOpen = () => {
     dispatch(openR());
+  };
+
+  const handleLogout = async () => {
+    const auth = getAuth();
+    await signOut(auth);
+    dispatch(clearUser());
   };
 
   const CartBadge = styled(Badge)`
@@ -42,7 +52,7 @@ export const Header = () => {
         position="fixed"
         sx={{ bgcolor: "#17234a", color: "#fff", p: "0 30px 0 35px" }}
       >
-        <Toolbar sx={{ display: "flex" }}>
+        <Toolbar sx={{ display: "flex"}}>
           <Typography
             variant="h5"
             component="div"
@@ -52,24 +62,33 @@ export const Header = () => {
               <img src={Barca} alt="logo" width={50} height={50} />
             </Button>
           </Typography>
-          <Stack direction="row" spacing={2}>
+
+          <Stack direction="row-reverse" >
             {!userId && (
-              <IconButton onClick={openForRHandler}>
-                <Login sx={{ width: 30, height: 30, color: "white" }} />
+              <IconButton onClick={handleLoginOpen}>
+                <PermIdentitySharpIcon
+                  sx={{ width: 40, height: 33, color: "white" }}
+                />
               </IconButton>
             )}
 
             {userId && (
-              <IconButton onClick={openHandler}>
-                <ShoppingCartIcon
-                  sx={{ width: 30, height: 30, color: "white" }}
-                />
-                <CartBadge
-                  badgeContent={quantity}
-                  color="warning"
-                  overlap="circular"
-                />
-              </IconButton>
+              <>
+                <IconButton onClick={handleCartOpen}>
+                  <ShoppingCartIcon
+                    sx={{ width: 30, height: 30, color: "white" }}
+                  />
+                  <CartBadge
+                    badgeContent={quantity}
+                    color="warning"
+                    overlap="circular"
+                  />
+                </IconButton>
+
+                <IconButton onClick={handleLogout}>
+                  <LogoutIcon sx={{ width: 30, height: 30, color: "white" }} />
+                </IconButton>
+              </>
             )}
           </Stack>
         </Toolbar>

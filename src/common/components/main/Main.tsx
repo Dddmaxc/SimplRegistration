@@ -3,11 +3,11 @@ import backgroundImage from "../../../assets/images/barcai.webp";
 import SendIcon from "@mui/icons-material/Send";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { idIsLoginedState } from "../auth/forma/slice-login";
+import { selectUserId } from "../auth/forma/authSlice";
 
 export const Main = () => {
   const navigate = useNavigate(); // хук для перехода
-  const isRegistered = useSelector(idIsLoginedState);
+  const userId = useSelector(selectUserId);
   const handleGoToShopping = () => {
     navigate("/Shop"); // путь, на который нужно перейти
   };
@@ -35,7 +35,7 @@ export const Main = () => {
         borderRadius: "10px",
       }}
     >
-      {isRegistered && (
+      {userId && (
         <Button
           onClick={handleGoToShopping}
           color={"success"}

@@ -1,7 +1,12 @@
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import {
+  getAuth,
+  setPersistence,
+  browserLocalPersistence,
+} from "firebase/auth";
 import { initializeFirestore, CACHE_SIZE_UNLIMITED } from "firebase/firestore";
 
+// Firebase config из .env
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -13,15 +18,22 @@ const firebaseConfig = {
 
 // Инициализация Firebase
 const app = initializeApp(firebaseConfig);
+
+// Инициализация auth и установка локального хранения
 const auth = getAuth(app);
 
-// Инициализация Firestore с настройками
+setPersistence(auth, browserLocalPersistence)
+  .then(() => {
+    console.log("Auth persistence set to 'localStorage'");
+  })
+  .catch((err) => {
+    console.error("Failed to set persistence:", err);
+  });
+//  Инициализация Firestore с неограниченным кэшем
 const db = initializeFirestore(app, {
   cacheSizeBytes: CACHE_SIZE_UNLIMITED,
-  // experimentalForceLongPolling: true, // опционально, для обхода некоторых проблем
 });
 
 console.log("Firebase initialized successfully");
 
 export { auth, db };
-

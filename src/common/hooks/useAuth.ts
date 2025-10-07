@@ -1,6 +1,5 @@
 import { useSelector } from "react-redux";
-import { registrSelector } from "../components/auth/forma/slice-login";
-
+import { registrSelector } from "../components/auth/forma/authSlice";
 
 export const useAuth = () => {
   const { email, token, id } = useSelector(registrSelector);

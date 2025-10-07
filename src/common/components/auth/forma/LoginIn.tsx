@@ -12,7 +12,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "../../../hooks/useAppDispatch";
 import { closeOther } from "./slice-loginModal";
-import { setUser, registrSelector } from "./slice-login";
+import { setUser, selectUser } from "./authSlice";
 import style from "./login.module.css";
 import {
   createUserWithEmailAndPassword,
@@ -30,28 +30,33 @@ export const LoginIn = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [password, setPassword] = useState("");
 
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm")); 
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const open = useSelector(
     (state: RootState) => state.modalsForRegistr?.otherAuthOpen ?? false
   );
 
-  const { name, email, password } = useSelector(registrSelector);
+  const { name, email } = useSelector(selectUser);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name: fieldName, value } = e.target;
 
-    dispatch( 
-      setUser({
-        name: fieldName === "name" ? value : name,
-        email: fieldName === "email" ? value : email,
-        password: fieldName === "password" ? value : password,
-        token: null,
-        id: null,
-      })
-    );
+    if (fieldName === "password") {
+      setPassword(value);
+    } else {
+      dispatch(
+        setUser({
+          name: fieldName === "name" ? value : name,
+          email: fieldName === "email" ? value : email,
+          id: null,
+          token: null,
+          phoneNumber: null,
+        })
+      );
+    }
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -64,7 +69,7 @@ export const LoginIn = () => {
         const userCredential = await signInWithEmailAndPassword(
           auth,
           email!,
-          password!
+          password
         );
         const user = userCredential.user;
         const idToken = await user.getIdToken();
@@ -73,9 +78,9 @@ export const LoginIn = () => {
           setUser({
             name: user.displayName || "",
             email: user.email || "",
-            password: "",
             token: idToken,
             id: user.uid,
+            phoneNumber: null,
           })
         );
 
@@ -86,7 +91,7 @@ export const LoginIn = () => {
         const userCredential = await createUserWithEmailAndPassword(
           auth,
           email!,
-          password!
+          password
         );
         const user = userCredential.user;
 
@@ -108,9 +113,9 @@ export const LoginIn = () => {
           setUser({
             name,
             email,
-            password: "",
             token: idToken,
             id: user.uid,
+            phoneNumber: null,
           })
         );
 
@@ -127,6 +132,7 @@ export const LoginIn = () => {
   const toggleAuthMode = () => {
     setIsLogin(!isLogin);
     setError("");
+    setPassword(""); // Очистим пароль при переключении режима
   };
 
   const GreenTextField = {
@@ -169,7 +175,12 @@ export const LoginIn = () => {
 
         <Divider sx={{ borderColor: "#ccc", mb: 2 }} />
 
-        <Typography variant="h5" textAlign="center" mb={2} fontSize={isMobile ? "1.2rem" : "1.5rem"}>
+        <Typography
+          variant="h5"
+          textAlign="center"
+          mb={2}
+          fontSize={isMobile ? "1.2rem" : "1.5rem"}
+        >
           {isLogin ? "Sign In" : "Sign Up"}
         </Typography>
 
@@ -197,7 +208,7 @@ export const LoginIn = () => {
               value={name || ""}
               onChange={handleChange}
               fullWidth
-              required={!isLogin}
+              required
               disabled={loading}
             />
           )}
@@ -219,7 +230,7 @@ export const LoginIn = () => {
             label="Password"
             name="password"
             type="password"
-            value={password || ""}
+            value={password}
             onChange={handleChange}
             fullWidth
             required
@@ -244,7 +255,10 @@ export const LoginIn = () => {
               color="primary"
               onClick={toggleAuthMode}
               disabled={loading}
-              sx={{ textTransform: "none", fontSize: isMobile ? "0.9rem" : "1rem" }}
+              sx={{
+                textTransform: "none",
+                fontSize: isMobile ? "0.9rem" : "1rem",
+              }}
             >
               {isLogin ? "Sign Up" : "Sign In"}
             </Button>
